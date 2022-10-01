@@ -7,12 +7,15 @@ public class PlayerControl : MonoBehaviour
     CharacterController Cc;
     public GameObject Camera;
     float speed = 12f;
-    float Gravity = -9.8f;
+    float Gravity = -75f;
     private Vector3 velocity;
     Quaternion PlayerRotate; 
+    bool CanJump = true;
+    public float jump = 2f;
     // Start is called before the first frame update
     void Start()
     {
+        CanJump = true;
         Cc = gameObject.GetComponent<CharacterController>();
         PlayerRotate = this.transform.rotation;
     }
@@ -23,20 +26,26 @@ public class PlayerControl : MonoBehaviour
         
         Vector3 distance = Camera.transform.forward*speed;
         Vector3 distance2 = Camera.transform.right*speed;
+        if(Cc.isGrounded)
+        {
+            CanJump=true;
+        }
         if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))
         {
             if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W)) 
             {
-                Cc.Move((-distance2+distance)*Time.deltaTime);
+                Vector3 nor = (-distance2+distance).normalized;
+                Cc.Move((nor)*Time.deltaTime*speed);
             }
             else if(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S)) 
             {
-                Cc.Move((-distance2+-distance)*Time.deltaTime);
+                Vector3 nor = (-distance2-distance).normalized;
+                Cc.Move((nor)*Time.deltaTime*speed);
             }
             else if((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A)))
             {
-                
-                Cc.Move(-distance2*Time.deltaTime);
+                Vector3 nor = -distance2.normalized;
+                Cc.Move(nor*Time.deltaTime*speed);
             }
         }
         else if(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))
@@ -44,16 +53,18 @@ public class PlayerControl : MonoBehaviour
             
             if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A)) 
             {
-                Cc.Move((-distance2-distance)*Time.deltaTime);
+                Vector3 nor = (-distance2-distance).normalized;
+                Cc.Move((nor)*Time.deltaTime*speed);
             }
             else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D)) 
             {
-                Cc.Move((distance2-distance)*Time.deltaTime);
+                Vector3 nor = (distance2-distance).normalized;
+                Cc.Move((nor)*Time.deltaTime*speed);
             }
             else if((Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S)))
             {
-                
-                Cc.Move(-distance*Time.deltaTime);
+                Vector3 nor = -distance.normalized;
+                Cc.Move(nor*Time.deltaTime*speed);
             }
             
         }
@@ -61,16 +72,18 @@ public class PlayerControl : MonoBehaviour
         {
             if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A)) 
             {
-                Cc.Move((-distance2+distance)*Time.deltaTime);
+                Vector3 nor = (-distance2+distance).normalized;
+                Cc.Move((nor)*Time.deltaTime*speed);
             }
             else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D)) 
             {
-                Cc.Move((distance2+distance)*Time.deltaTime);
+                Vector3 nor = (distance2+distance).normalized;
+                Cc.Move((nor)*Time.deltaTime*speed);
             }
             else if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W)) 
             {
-                
-                Cc.Move(distance*Time.deltaTime);
+                Vector3 nor = distance.normalized;
+                Cc.Move(nor*Time.deltaTime*speed);
             }
         }
         else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))
@@ -78,20 +91,32 @@ public class PlayerControl : MonoBehaviour
             
             if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))
             {
-                Cc.Move((distance2+distance)*Time.deltaTime);
+                Vector3 nor = (distance2+distance).normalized;
+                Cc.Move((nor)*Time.deltaTime*speed);
             }
             else if(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S)) 
             {
-                Cc.Move((distance2-distance)*Time.deltaTime);
+                Vector3 nor = (distance2-distance).normalized;
+                Cc.Move((nor)*Time.deltaTime*speed);
             }
             else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D)) 
             {
-                Cc.Move(distance2*Time.deltaTime);
+                Vector3 nor = (distance2).normalized;
+                Cc.Move(nor*Time.deltaTime*speed);
             }
             
         }
         
-        velocity.y += Gravity*Time.deltaTime;
+        
+        if (Input.GetKey(KeyCode.Space)&&(CanJump))
+        {   
+            CanJump = false;
+            velocity.y = jump*1.5f;  
+        }
+        else
+        {
+            velocity.y += Gravity * Time.deltaTime;
+        }
         Cc.Move(velocity * Time.deltaTime);
     }
 }
