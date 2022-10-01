@@ -6,15 +6,16 @@ public class PlayerControl : MonoBehaviour
 {
     CharacterController Cc;
     public GameObject Camera;
-    float speed = 12f;
-    float Gravity = -75f;
+    float speed = 8f;
+    float Gravity = -40f;
     private Vector3 velocity;
     Quaternion PlayerRotate; 
     bool CanJump = true;
-    public float jump = 2f;
+    public float jump = 200f;
     // Start is called before the first frame update
     void Start()
     {
+        Cursor.visible = false;
         CanJump = true;
         Cc = gameObject.GetComponent<CharacterController>();
         PlayerRotate = this.transform.rotation;
@@ -111,7 +112,7 @@ public class PlayerControl : MonoBehaviour
         if (Input.GetKey(KeyCode.Space)&&(CanJump))
         {   
             CanJump = false;
-            velocity.y = jump*1.5f;  
+            velocity.y = jump*10f;  
         }
         else
         {
