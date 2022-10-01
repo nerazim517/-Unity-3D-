@@ -1,0 +1,97 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerControl : MonoBehaviour
+{
+    CharacterController Cc;
+    public GameObject Camera;
+    float speed = 12f;
+    float Gravity = -9.8f;
+    private Vector3 velocity;
+    Quaternion PlayerRotate; 
+    // Start is called before the first frame update
+    void Start()
+    {
+        Cc = gameObject.GetComponent<CharacterController>();
+        PlayerRotate = this.transform.rotation;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+        Vector3 distance = Camera.transform.forward*speed;
+        Vector3 distance2 = Camera.transform.right*speed;
+        if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))
+        {
+            if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W)) 
+            {
+                Cc.Move((-distance2+distance)*Time.deltaTime);
+            }
+            else if(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S)) 
+            {
+                Cc.Move((-distance2+-distance)*Time.deltaTime);
+            }
+            else if((Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A)))
+            {
+                
+                Cc.Move(-distance2*Time.deltaTime);
+            }
+        }
+        else if(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))
+        {
+            
+            if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A)) 
+            {
+                Cc.Move((-distance2-distance)*Time.deltaTime);
+            }
+            else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D)) 
+            {
+                Cc.Move((distance2-distance)*Time.deltaTime);
+            }
+            else if((Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S)))
+            {
+                
+                Cc.Move(-distance*Time.deltaTime);
+            }
+            
+        }
+        else if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))
+        {
+            if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A)) 
+            {
+                Cc.Move((-distance2+distance)*Time.deltaTime);
+            }
+            else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D)) 
+            {
+                Cc.Move((distance2+distance)*Time.deltaTime);
+            }
+            else if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W)) 
+            {
+                
+                Cc.Move(distance*Time.deltaTime);
+            }
+        }
+        else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))
+        {
+            
+            if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))
+            {
+                Cc.Move((distance2+distance)*Time.deltaTime);
+            }
+            else if(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S)) 
+            {
+                Cc.Move((distance2-distance)*Time.deltaTime);
+            }
+            else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D)) 
+            {
+                Cc.Move(distance2*Time.deltaTime);
+            }
+            
+        }
+        
+        velocity.y += Gravity*Time.deltaTime;
+        Cc.Move(velocity * Time.deltaTime);
+    }
+}
