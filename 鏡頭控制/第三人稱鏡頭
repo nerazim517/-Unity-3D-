@@ -1,0 +1,33 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Camera : MonoBehaviour
+{
+    public float near = 20.0f;
+    public float far = 100.0f;
+    public float sensitivetyZ = 2f;
+    public float sensitivityX = 10f;
+    public float sensitivityY = 10f;
+    public float sensitivetyMove = 2f;
+    public float sensitivetyMouseWheel = 2f;
+    public GameObject player;
+    
+    private void LateUpdate() {
+        this.transform.position = player.transform.position - 5*player.transform.forward + 2f*player.transform.up;
+    }
+    void Update()
+    {
+        
+        //if (Input.GetMouseButton(1))
+        //{
+            float rotationX = Input.GetAxis("Mouse X") * sensitivityX;
+            float rotationY = Input.GetAxis("Mouse Y") * sensitivityY;
+            
+            transform.RotateAround(player.transform.position, new Vector3(0,1,0), rotationX);
+            
+        //}
+        player.transform.rotation = this.transform.rotation;
+        
+    }
+}
