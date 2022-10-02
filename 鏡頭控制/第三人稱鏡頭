@@ -7,27 +7,55 @@ public class Camera : MonoBehaviour
     public float near = 20.0f;
     public float far = 100.0f;
     public float sensitivetyZ = 2f;
-    public float sensitivityX = 10f;
-    public float sensitivityY = 10f;
+    public float sensitivityX = 2f;
+    public float sensitivityY = 0.75f;
     public float sensitivetyMove = 2f;
     public float sensitivetyMouseWheel = 2f;
     public GameObject player;
-    
-    private void LateUpdate() {
-        this.transform.position = player.transform.position - 5*player.transform.forward + 2f*player.transform.up;
+    int minRotatex = -30;
+    int maxRotatex = 30;
+    bool rerotate = true;
+    private void Start() {
+        rerotate = true;
+        
     }
+    private void LateUpdate() {
+        this.transform.position = player.transform.position - 7*player.transform.forward + 3f*player.transform.up;
+    }
+    
     void Update()
     {
-        
+        Debug.Log(Input.GetAxis("Mouse Y"));
         //if (Input.GetMouseButton(1))
         //{
             float rotationX = Input.GetAxis("Mouse X") * sensitivityX;
             float rotationY = Input.GetAxis("Mouse Y") * sensitivityY;
+            Debug.Log(transform.eulerAngles);
+            float currentx = transform.eulerAngles.x;
+            if(currentx>180)
+            {
+                currentx -=360;
+            }
             
-            transform.RotateAround(player.transform.position, new Vector3(0,1,0), rotationX);
+                if((-30<=currentx)&&(currentx<=30))
+                {
+                    transform.Rotate(-rotationY*0.25f, 0, 0);
+                }
+            
+            if(currentx<-28)
+            {
+                transform.Rotate(1, 0, 0);
+            }
+            if(30<currentx)
+            {
+                transform.Rotate(-1, 0, 0);
+            }
+            transform.RotateAround(player.transform.position, new Vector3(0,1,0), rotationX*0.4f);
+            
             
         //}
         player.transform.rotation = this.transform.rotation;
         
     }
 }
+
