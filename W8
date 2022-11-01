@@ -1,0 +1,53 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class control : MonoBehaviour
+{
+    Animator m_animator;
+    int attackState;
+    // Start is called before the first frame update
+    void Start()
+    {
+        m_animator = this.GetComponent<Animator>();
+        attackState = Animator.StringToHash("Base Layer.attack");
+    }
+
+    // Update is called once per frame
+    private void Update() {
+        AnimatorStateInfo state = m_animator.GetCurrentAnimatorStateInfo(0);
+        float v = Input.GetAxis("Vertical");
+        float h = Input.GetAxis("Horizontal");
+        m_animator.SetFloat("Speed" ,v);
+        m_animator.SetFloat("Direction" ,h); 
+        if(Input.GetKey(KeyCode.W))
+        {
+            
+            this.transform.position-=new Vector3(0.04f,0,0);
+        }
+        else if(Input.GetKey(KeyCode.A))
+        {
+            
+            this.transform.position-=new Vector3(0,0,0.04f);
+        }
+        else if(Input.GetKey(KeyCode.S))
+        {
+            this.transform.position+=new Vector3(0.04f,0,0);
+        }
+        else if(Input.GetKey(KeyCode.D))
+        {
+           
+            this.transform.position+=new Vector3(0,0,0.04f);
+        }
+        else if(Input.GetKey(KeyCode.X))
+        {
+           
+            m_animator.SetBool("attack" ,true);
+        }
+        if(state.fullPathHash == attackState)
+        {
+            m_animator.SetBool("attack" ,false);
+        }
+    }
+    
+}
