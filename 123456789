@@ -1,0 +1,162 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CameraControl : MonoBehaviour
+{
+    public float near = 20.0f;
+    public float far = 100.0f;
+    public float sensitivetyZ = 2f;
+    public float sensitivityX = 2f;
+    public float sensitivityY = 0.75f;
+    public float sensitivetyMove = 2f;
+    public float sensitivetyMouseWheel = 2f;
+    public static GameObject player;
+    public static int playerType;
+    int minRotatex = -30;
+    int maxRotatex = 30;
+    bool rerotate = true;
+    private void Start() {
+        rerotate = true;
+        
+    }
+    private void LateUpdate() {
+        this.transform.position = player.transform.position - 7*player.transform.forward + 3f*player.transform.up;
+    }
+    
+    void Update()
+    {
+        if(playerType==0)
+        {
+            player.name = "Player_Ghost";
+            player.tag = "Player_Ghost";
+        }
+        else if(playerType==1)
+        {
+            player.name = "Player_Monster";
+            player.tag = "Player_Monster";
+        }
+        
+        player.transform.GetComponent<PlayerControl>().enabled = true;
+        
+        
+        if(player.transform.GetComponent<Enemy>())
+        {
+            player.transform.GetChild(0).gameObject.SetActive(false);
+            player.transform.GetComponent<Enemy>().enabled = false;
+        }
+        
+        //if (Input.GetMouseButton(1))
+        //{
+            float rotationX = Input.GetAxis("Mouse X") * sensitivityX;
+            float rotationY = Input.GetAxis("Mouse Y") * sensitivityY;
+            
+            float currentx = transform.eulerAngles.x;
+            if(currentx>180)
+            {
+                currentx -=360;
+            }
+            
+                if((-30<=currentx)&&(currentx<=30))
+                {
+                    transform.Rotate(-rotationY*0.25f, 0, 0);
+                }
+            
+            if(currentx<-28)
+            {
+                transform.Rotate(1, 0, 0);
+            }
+            if(30<currentx)
+            {
+                transform.Rotate(-1, 0, 0);
+            }
+            transform.RotateAround(player.transform.position, new Vector3(0,1,0), rotationX*0.4f);
+            
+            
+        //}
+        player.transform.rotation = this.transform.rotation;
+        
+    }
+}
+------------------------------------------------------------------------------------------------------------------------------------
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class EnemyControl : MonoBehaviour
+{
+    public static List <GameObject> Enemy_List,Detected_List;
+    public GameObject monster1,monster2,monster3;
+    float prev_time;
+    void Start()
+    {
+        Enemy_List = new List<GameObject>();
+        Detected_List = new List<GameObject>();
+        prev_time = Time.time;
+        GameObject monster1_ = Instantiate(monster1,new Vector3(3.153563f,5.010867f,4.957434f),this.transform.rotation);
+        monster1_.transform.parent = this.transform;
+        Enemy_List.Add(monster1_);
+        GameObject monster2_ = Instantiate(monster2,new Vector3(3.153563f,5.010867f,4.957434f),this.transform.rotation);
+        monster2_.transform.parent = this.transform;
+        Enemy_List.Add(monster2_);
+        GameObject monster3_ = Instantiate(monster3,new Vector3(3.153563f,5.010867f,4.957434f),this.transform.rotation);
+        monster3_.transform.parent = this.transform;
+        Enemy_List.Add(monster3_);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(Time.time-prev_time>0.1f)
+        {
+            prev_time = Time.time;
+            for(int i=0;i<Detected_List.Count;i++)
+            {
+                //Debug.Log(Detected_List[i].name+Detected_List.Count);
+                if(Detected_List[i].name=="Player_Monster")
+                {
+                    Detected_List.Remove(Detected_List[i]);//有報錯訊息
+                }
+            }
+            //foreach(GameObject enemy in Detected_List)
+            //{
+                //if(enemy.name=="Player_Monster")
+                //{
+                    //Detected_List.Remove(enemy);//有報錯訊息
+                //}
+                //enemy.GetComponent<Enemy>().Detected = false;
+            //}
+            
+        }
+        PlayerControl.Detected_Enemy_Count = Detected_List.Count;
+    }
+
+
+}
+------------------------------------------------------------------------------------------------------------------------------------
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+public class MonsterCanvas : MonoBehaviour
+{
+    GameObject cam;
+    public Image HpBar;
+    public static float ReaminHP;
+    void Start() {
+        cam = GameObject.FindGameObjectsWithTag("MainCamera")[0]; 
+    }
+
+    private void Update()
+    {
+        ReaminHP = Enemy.HP;
+        HpBar.GetComponent<Image>().fillAmount = ReaminHP/100;
+        
+        this.transform.LookAt(this.transform.position + (cam.transform.rotation * Vector3.forward), cam.transform.rotation * Vector3.up);
+        
+    }
+}
