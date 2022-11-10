@@ -1,0 +1,189 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+public class PlayerControl : MonoBehaviour //可能要把enemycontrol的enemylist搬來這裡
+{
+    
+    float Player_Speed = 6;
+    public static Vector3 Player_Position;
+    public GameObject Camera_;
+    public GameObject Check;
+    public GameObject Ghost;
+    private Vector3 velocity;
+    public static int Select_monster_number = 0;
+    public static int Detected_Enemy_Count;
+    public GameObject bullet;
+    float prev_time,select_time;
+    public static GameObject select_monster;
+    bool CanChange,first_time;
+    
+    Quaternion PlayerRotate;
+    GameObject Check_;
+    
+    bool ishit = false;
+    Ray ray;
+    RaycastHit hit;
+
+    static public GameObject PreMonster; 
+    bool CanJump = true;
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+        first_time = true;
+        PreMonster = null;
+        prev_time = Time.time;
+        select_time = Time.time;
+        CanChange = false;
+        CameraControl.player = this.transform.gameObject;
+        CanJump = true;
+        Check_ = Instantiate(Check,this.transform.position,this.transform.rotation);
+        Check_.transform.parent = this.transform;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Player_Position = this.transform.position;
+        if(((PreMonster==null)||(PreMonster.name=="Player_Monster"))&&(EnemyControl.Detected_List.Count>0))
+        {
+            PreMonster = EnemyControl.Detected_List[0];
+            Debug.Log( EnemyControl.Detected_List[0].name+EnemyControl.Detected_List.Count+PreMonster.name);
+        }
+        
+        this.GetComponent<PlayerControl>().Camera_ = GameObject.Find("PlayerCamera");
+        Vector3 distance = Camera_.transform.forward;
+        Vector3 distance2 = Camera_.transform.right;
+        
+        if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A))
+        {
+            
+            if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W)) 
+            {
+                this.transform.Translate(new Vector3(-1,0,1).normalized*Time.deltaTime*Player_Speed);
+            }
+            else if(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S)) 
+            {
+                this.transform.Translate(new Vector3(-1,0,-1).normalized*Time.deltaTime*Player_Speed);
+            }
+            else    
+                this.transform.Translate(new Vector3(-1,0,0)*Time.deltaTime*Player_Speed);
+            
+        }
+        else if(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S))
+        {
+
+            if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A)) 
+            {
+                this.transform.Translate(new Vector3(-1,0,-1).normalized*Time.deltaTime*Player_Speed);
+            }
+            else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D)) 
+            {
+                this.transform.Translate(new Vector3(1,0,-1).normalized*Time.deltaTime*Player_Speed);
+            }
+            else 
+                this.transform.Translate(new Vector3(0,0,-1)*Time.deltaTime*Player_Speed);
+
+        }
+        else if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))
+        {
+
+            if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.A)) 
+            {
+                this.transform.Translate(new Vector3(-1,0,1).normalized*Time.deltaTime*Player_Speed);
+            }
+            else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D)) 
+            {
+                this.transform.Translate(new Vector3(1,0,1).normalized*Time.deltaTime*Player_Speed);
+            }    
+            else    
+                this.transform.Translate(new Vector3(0,0,1)*Time.deltaTime*Player_Speed);
+            
+        }
+        else if(Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.D))
+        {
+            
+            if(Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.W))
+            {
+                this.transform.Translate(new Vector3(1,0,1).normalized*Time.deltaTime*Player_Speed);
+            }
+            else if(Input.GetKey(KeyCode.DownArrow)||Input.GetKey(KeyCode.S)) 
+            {
+                this.transform.Translate(new Vector3(1,0,-1).normalized*Time.deltaTime*Player_Speed);
+            }
+            else
+                this.transform.Translate(new Vector3(1,0,0)*Time.deltaTime*Player_Speed);
+        }
+        if(Input.GetKey(KeyCode.Z)&&this.transform.tag!="Player_Ghost")
+        {
+            CanChange = false;
+            Destroy(this.transform.GetChild(0).gameObject);
+            GameObject Ghost_ = Instantiate(Ghost,this.transform.position,this.transform.rotation);
+            CameraControl.player = Ghost_;
+            CameraControl.playerType = 0;
+            this.transform.GetComponent<PlayerControl>().enabled = false;
+            Destroy(this.transform.gameObject);
+        }
+        if(Input.GetKey(KeyCode.Space)&&CanJump)
+        {
+            CanJump = false;
+            this.transform.GetComponent<Rigidbody>().velocity= new Vector3(0,7,0);
+        }
+        if((Input.GetKey(KeyCode.Q)&&CanChange)&&(select_monster))//切換到怪物身上
+        {
+            CanChange = false;
+            Destroy(this.transform.GetChild(0).gameObject);//destroy Check
+            CameraControl.player = select_monster;
+            
+            select_monster = null;
+            
+            CameraControl.playerType = 1; //玩家是怪物型態
+            this.transform.GetComponent<PlayerControl>().enabled = false;
+            
+            Destroy(this.transform.gameObject);
+        }
+        if((Input.GetKey(KeyCode.E)&&Detected_Enemy_Count>0)&&(Time.time-select_time>1f))//切換鎖定怪物
+        {
+            select_time = Time.time;
+            Select_monster_number +=1;
+            Select_monster_number = Select_monster_number%(Detected_Enemy_Count);
+            Debug.Log(Select_monster_number);
+            PreMonster = EnemyControl.Detected_List[Select_monster_number];
+        }
+        if((Time.time-prev_time>1f)&&(PreMonster!=null)) //切換過後1秒才能在切換
+        {
+            CanChange = true;
+        }
+        if(Input.GetKey(KeyCode.Mouse1))
+        {
+            GameObject bullet_ = Instantiate(bullet,this.transform.position+this.transform.forward,this.transform.rotation);
+            bullet_.GetComponent<Rigidbody>().velocity+=this.transform.forward*25;
+            Destroy(bullet_,3);
+        }
+
+        
+        ray = Camera.main.ScreenPointToRay(Input.mousePosition);    
+        
+        if (Input.GetMouseButton(0) && Physics.Raycast(ray, out hit))
+        {
+            ishit = true;
+            //OnGUI(hit.transform.root.tag, hit.transform.name);
+            
+            Text_Select_Monster.select_monster = hit.collider.gameObject;
+            if(hit.collider.gameObject.transform.tag!="Ground")
+            {
+                select_monster = hit.collider.gameObject;
+            }
+            ishit = false;
+        }
+        
+        
+    }
+    void OnCollisionEnter(Collision other) {
+        if(other.transform.tag=="Ground")
+        {
+            CanJump = true;
+        }
+    }
+}
